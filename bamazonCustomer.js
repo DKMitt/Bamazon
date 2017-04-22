@@ -1,35 +1,38 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
-// create connection to db
+// the methode to setup the code to the database
 var connection = mysql.createConnection({
-	host: "localhost",
-	port: "3000",
-	user: "",
-	password: "",
-	database: "bamazon"
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "DKMitt!#!#1313",
+  database: "bamazon"
 });
 
-// connect to the mysql server and sql db
-connection.connect(function(err) {
-	if (err) throw err;
+connection.connect(function(err){
+  if(err) {
+    console.log(err);
+  } else {
+    console.log("connected as id " + connection.threadId);
+    console.log("  ");
+  }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // display all items available includes ids name and price of items.
+
+connection.query("SELECT * FROM products", function(err, res) {
+  for (var i = 0; i < res.length; i++) {
+    console.log("ID: " + res[i].item_id + "  " + " Item: " + res[i].product_name + "  " + "Price:" + " $ " + res[i].price + "   ");
+    console.log("  ");
+  }
+  console.log("-----------------------------------------------------");
+});
+
+
+
+
 // the app should prompt user with two messages
 //  	what is the id of the item you would like to buy?
 //  	what is the quantity of the item that you would like to buy?
