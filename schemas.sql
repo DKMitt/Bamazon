@@ -10,3 +10,6 @@ CREATE TABLE products (
   stock_quantity INT(5) NOT NULL,
   PRIMARY KEY (item_id)
 );
+
+USE bamazon;
+SELECT * FROM products;

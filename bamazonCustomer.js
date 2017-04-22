@@ -10,92 +10,66 @@ var connection = mysql.createConnection({
   database: "bamazon"
 });
 
-connection.connect(function(err){
-  if(err) {
-    console.log(err);
-  } else {
-    console.log("The Server is running!!");
-    console.log("  ");
-  }
-});
-
-// display all items available includes ids name and price of items.
-
-connection.query("SELECT * FROM products", function(err, res) {
-  for (var i = 0; i < res.length; i++) {
-    console.log("ID: " + res[i].item_id + "  " + " Item: " + res[i].product_name + "  " + "Price:" + " $ " + res[i].price + "  \n");
-    // console.log("  ");
-  }
-  console.log("-----------------------------------------------------");
+// connect to the mysql server and sql database
+connection.connect(function(err) {
+	if (err) throw err;
 });
 
 
-// the app should prompt user with two messages
-//  	what is the id of the item you would like to buy?
-//  	what is the quantity of the item that you would like to buy?
+// function to get all items available for bidding, and allow you to place a bid
+var bamBuy = function() {
+  // query the database for all items being auctioned
+  connection.query("SELECT * FROM products", function(err, results) {
+    if (err) throw err;
+    // once you have the items, prompt the user for which they'd like to bid on
+    inquirer.prompt([
+      {
+        name: "choice",
+        type: "list",
+        choices: function() {
+          var choiceArray = [];
+          for (var i = 0; i < results.length; i++) {
+            choiceArray.push("ID: " + results[i].item_id + "    " + results[i].product_name + "     " + "Price: $ " + results[i].price  + "     " + "Qty: " + results[i].stock_quantity);
+          }
+          return choiceArray;
+        },
+        message: "Which item would you like to order?"
+      },
+      {
+        name: "stock_quantity",
+        type: "input",
+        message: "How many would you would you like?"
+      }
+    ]).then(function(answer) {
+      // get the information of the chosen product
+      var chosenItem;
+      for (var i = 0; i < results.length; i++) {
+        if (results[i].product_name === answer.choice) {
+          chosenItem = results[i];
+        }
+      }
 
+      // // determine if stock_quantity is availble
+      // if (chosenItem.stock_quantity < parseInt(answer.stock_quantity)) {
+      //   
+      // stock_quantity was available, so update db, let the customer know, and start over
+      //   connection.query("UPDATE products SET ? WHERE ?", [{
+      //     stock_quantity: answer.stock_quantity
+      //   }, {
+      //     item_id: chosenItem.item_id
+      //   }], function(error) {
+      //     if (error) throw err;
+      //     console.log("Order placed successfully!\n");
+      //     // bamBuy();
+      //   });
+      // }
+      // else {
+      //   // stock_quantity wasn't available, and start over
+        console.log("Your order failed. Please try again...\n");
+        bamBuy();
+      // }
+    });
+  });
+};
 
-
-inquirer.prompt([
-	{
-		type: "input",
-		message: "what is the ID of the product you want to buy?",
-		name: "item_id"
-	},
-	{
-		type: "input",
-		message: "How many would you like to buy?",
-		name: "stock_quantity"
-	}
-
-]).then(function(user) {
-
-
-
-  // If we log that user as a JSON, we can see how it looks.
-  console.log(JSON.stringify(user, null, 2));
-
-  // If the user confirms, we displays the user's name and pokemon from the answers.
-  if (user.input) {
-
-    console.log("==============================================");
-    console.log("");
-    console.log("You selected item id: " + user.item_id);
-    console.log("Quantity ordered: " + user.stock_quantity);
-    console.log("");
-    console.log("==============================================");
-
-  // If the user does not confirm, then a message is provided and the program quits.
-  }
-
-  else {
-
-    console.log("");
-    console.log("");
-    console.log("That's okay, come back again when you are ready.");
-    console.log("");
-    console.log("");
-
-  }
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-// Once the customer has placed the order, your application should check if your store has enough of the product to meet the customers request.
-
-// If not the app should log a phrase like `Insufficient quantity!` and then prevent the order from going through.
-
-// However if your store does have enough of the product, you should fulfill the customers order.
-// This means updating the SQL database to reflect the remaining quantity.
-// Once the update goes through, show the customer the total cost of their purchase.
-
+bamBuy();
