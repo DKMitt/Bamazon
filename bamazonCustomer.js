@@ -1,4 +1,34 @@
-// Pseudo Code
+var mysql = require("mysql");
+var inquirer = require("inquirer");
+
+// create connection to db
+var connection = mysql.createConnection({
+	host: "localhost",
+	port: "3000",
+	user: "",
+	password: "",
+	database: "bamazon"
+});
+
+// connect to the mysql server and sql db
+connection.connect(function(err) {
+	if (err) throw err;
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // display all items available includes ids name and price of items.
 // the app should prompt user with two messages
 //  	what is the id of the item you would like to buy?
